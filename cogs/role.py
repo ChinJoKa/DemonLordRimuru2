@@ -106,7 +106,6 @@ class MultipleSelect(discord.ui.View):
 
     @discord.ui.button(label="Manga", style=discord.ButtonStyle.gray, row=2)
     async def manga(self, interaction: discord.Interaction, Button:discord.ui.Button):
-        await interaction.response.defer()
         mangaRol = discord.utils.get(self.guild.roles, id= self.mangaID)
         if mangaRol in self.member.roles:
             await self.member.remove_roles(mangaRol)
