@@ -62,15 +62,70 @@ class SelectButton(discord.ui.View):
         view = PaginationView(interaction.guild, interaction.user, roles)
         await view.send(interaction)
     
-    @discord.ui.button(label="Bütün Mangalar", style=discord.ButtonStyle.green, custom_id="2")
+    @discord.ui.button(label="Manga/Webtoon", style=discord.ButtonStyle.green, custom_id="2")
     async def all(self, interaction: discord.Interaction, Button:discord.ui.Button):
-        tüm_mangalar = discord.utils.get(interaction.guild.roles, id= 1020464698166100069)
-        if tüm_mangalar in interaction.user.roles:
-            await interaction.user.remove_roles(tüm_mangalar)
-            await interaction.response.send_message(f"{tüm_mangalar.name} rolünüz **KALDIRILMIŞTIR**.", ephemeral=True)
+        view = MultipleSelect(interaction.guild, interaction.user)
+        await view.send(interaction)
+
+class MultipleSelect(discord.ui.View):
+    def __init__(self, guild, member:discord.Member):
+        super().__init__()
+        self.guild = guild
+        self.member = member
+        self.mangaID = 1020464698166100069
+        self.webtoonID = 1271119836256145469
+        self.mangaRol = None
+        self.webtoonRol = None
+        # self.update_buttons()
+
+    def getroles(self):
+        self.mangaRol = discord.utils.get(self.guild.roles, id= self.mangaID)
+        self.webtoonRol = discord.utils.get(self.guild.roles, id= self.webtoonID)
+
+    def update_buttons(self):
+        if self.mangaRol == None or self.webtoonRol == None:
+            self.getroles()
+        
+        if self.mangaRol in self.member.roles:
+            self.manga.style(discord.ButtonStyle.green)
         else:
-            await interaction.user.add_roles(tüm_mangalar)
-            await interaction.response.send_message(f"{tüm_mangalar.name} rolünüz eklenmiştir.", ephemeral=True)
+            self.manga.style(discord.ButtonStyle.gray)
+        
+        if self.webtoonRol in self.member.roles:
+            self.webtoon.style(discord.ButtonStyle.green)
+        else:
+            self.webtoon.style(discord.ButtonStyle.gray)
+
+    async def send(self, interaction: discord.Interaction):
+        self.interaction = interaction
+        await self.interaction.response.send_message(view=self, ephemeral=True)
+    
+    async def edit(self, content = None):
+        # self.update_buttons()
+        await self.interaction.edit_original_response(content=content, view=self)
+
+    @discord.ui.button(label="Manga", style=discord.ButtonStyle.gray, row=2)
+    async def manga(self, interaction: discord.Interaction, Button:discord.ui.Button):
+        await interaction.response.defer()
+        mangaRol = discord.utils.get(self.guild.roles, id= self.mangaID)
+        if mangaRol in self.member.roles:
+            await self.member.remove_roles(mangaRol)
+        else:
+            await self.member.add_roles(mangaRol)
+        await self.send()
+        # self.update_buttons()
+
+    @discord.ui.button(label="Webtoon", style=discord.ButtonStyle.gray, row=2)
+    async def webtoon(self, interaction: discord.Interaction, Button:discord.ui.Button):
+
+        webtoonRol = discord.utils.get(self.guild.roles, id= self.webtoonID)
+        if webtoonRol in self.member.roles:
+            await self.member.remove_roles(webtoonRol)
+            await interaction.response.send_message(content=f"**{webtoonRol}** rolünüz kaldırıldı", ephemeral=True)
+        else:
+            await self.member.add_roles(webtoonRol)
+            await interaction.response.send_message(content=f"**{webtoonRol}** rolünüz eklendi", ephemeral=True)
+        # self.update_buttons()
 
 class Questionnaire(discord.ui.Modal, title='Manga Arama'):
     part = discord.ui.TextInput(label='Seri Adı/Parçası')
