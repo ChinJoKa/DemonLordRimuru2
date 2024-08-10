@@ -110,9 +110,10 @@ class MultipleSelect(discord.ui.View):
         mangaRol = discord.utils.get(self.guild.roles, id= self.mangaID)
         if mangaRol in self.member.roles:
             await self.member.remove_roles(mangaRol)
+            await interaction.response.send_message(content=f"**{mangaRol}** rolünüz kaldırıldı", ephemeral=True)
         else:
             await self.member.add_roles(mangaRol)
-        await self.send()
+            await interaction.response.send_message(content=f"**{mangaRol}** rolünüz eklendi", ephemeral=True)
         # self.update_buttons()
 
     @discord.ui.button(label="Webtoon", style=discord.ButtonStyle.gray, row=2)
